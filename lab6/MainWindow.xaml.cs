@@ -31,8 +31,7 @@ namespace lab6
         private Dictionary<ISortingMethod, Dictionary<int, TimeSpan?>> MeasureResults = new Dictionary<ISortingMethod, Dictionary<int, TimeSpan?>>();
 
         private SeriesCollection seriesViews = new SeriesCollection();
-        MeasureManager MM = new MeasureManager();
-        private Thread sortingThread;
+        MeasureManager measureManager = new();
 
         public MainWindow()
         {
@@ -100,7 +99,7 @@ namespace lab6
                 TimeSpan? performase;
                 try
                 {
-                    performase = MM.MeasureSortingTimeAsync(CopyList(list), sortMethod);
+                    performase = measureManager.MeasureSortingTimeAsync(CopyList(list), sortMethod);
                 }
                 catch (TimeoutException)
                 {

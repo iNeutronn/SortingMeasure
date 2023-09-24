@@ -49,6 +49,7 @@ namespace lab6
                 stopwatch.Stop();
                 if (!ISorted(list))
                 {
+                    //TODO
                     //throw new Exception("List is not sorted");
                 }
             }, cancellationTokenSource.Token);
