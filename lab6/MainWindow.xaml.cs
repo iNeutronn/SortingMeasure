@@ -31,6 +31,7 @@ namespace lab6
         private Dictionary<ISortingMethod, Dictionary<int, TimeSpan?>> MeasureResults = new Dictionary<ISortingMethod, Dictionary<int, TimeSpan?>>();
 
         private SeriesCollection seriesViews = new SeriesCollection();
+        MeasureManager MM = new MeasureManager();
         private Thread sortingThread;
 
         public MainWindow()
@@ -93,20 +94,20 @@ namespace lab6
         private void MeasureMethodsFor(int itemCount)
         {
             var list = MeasureManager.GenerateRandomList(itemCount);
-            //Parallel.ForEach(MeasureResults.Keys, (sortMethod) =>
-            foreach (var sortMethod in MeasureResults.Keys)
+            
+           Parallel.ForEach(MeasureResults.Keys, (sortMethod) =>
             {
                 TimeSpan? performase;
                 try
                 {
-                    performase = MeasureManager.MeasureSortingTimeAsync(CopyList(list), sortMethod);
+                    performase = MM.MeasureSortingTimeAsync(CopyList(list), sortMethod);
                 }
                 catch (TimeoutException)
                 {
                     performase = null;
                 }
                 MeasureResults[sortMethod].Add(itemCount, performase);
-            }//);
+            });
         }
         private List<T> CopyList<T>(List<T> sourse)
         {

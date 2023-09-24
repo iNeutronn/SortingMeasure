@@ -6,9 +6,9 @@ using System.Threading;
 
 namespace lab6
 {
-    internal static class MeasureManager
+    internal class MeasureManager
     {
-        public static readonly TimeSpan maxDuration = TimeSpan.FromSeconds(30);
+        public readonly TimeSpan maxDuration = TimeSpan.FromSeconds(10);
         public static List<int> GenerateRandomList(int n)
         {
             List<int> list = new List<int>();
@@ -21,8 +21,13 @@ namespace lab6
 
             return list;
         }
-        public static TimeSpan MeasureSortingTimeAsync<T>(List<T> list, ISortingMethod sortingAlgorithm) where T : IComparable<T>
+        private Dictionary<ISortingMethod, int> FailedAlgoritms = new Dictionary<ISortingMethod, int>();
+        public TimeSpan MeasureSortingTimeAsync<T>(List<T> list, ISortingMethod sortingAlgorithm) where T : IComparable<T>
         {
+            if (FailedAlgoritms.ContainsKey(sortingAlgorithm) && FailedAlgoritms[sortingAlgorithm]<=list.Count)
+            {
+                throw new TimeoutException();
+            }
             var cancellationTokenSource = new CancellationTokenSource();
             var stopwatch = new Stopwatch();
 
@@ -60,6 +65,7 @@ namespace lab6
             {
                 
                 cancellationTokenSource.Cancel();
+                FailedAlgoritms.Add(sortingAlgorithm,list.Count);
                 // Сортування триває довше, ніж максимально допустимо
                 throw new TimeoutException();
             }
