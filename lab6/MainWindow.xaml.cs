@@ -127,15 +127,15 @@ namespace lab6
                 seriesViews.Add(new LineSeries
                 {
                     Title = sortingMethod.Name,
-                    Values = new ChartValues<long>(ticks)
+                    Values = new ChartValues<double>(ticks)
 
                 });
             }
 
         }
-        public static List<long> ConvertDictionaryToLong(Dictionary<int, TimeSpan?> nullableDictionary)
+        public static List<double> ConvertDictionaryToLong(Dictionary<int, TimeSpan?> nullableDictionary)
         {
-            List<long> ticksList = new List<long>();
+            List<double> ticksList = new List<double>();
 
             foreach (var kvp in nullableDictionary)
             {
@@ -144,7 +144,7 @@ namespace lab6
                     break; // Зупинити обробку, якщо зустріли null
                 }
 
-                long ticks = kvp.Value.Value.Microseconds;
+                double ticks = kvp.Value.Value.TotalMilliseconds;
                 ticksList.Add(ticks);
             }
 

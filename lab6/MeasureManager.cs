@@ -28,9 +28,24 @@ namespace lab6
 
             var sortingTask = Task.Run(() =>
             {
+                bool ISorted<T>(IList<T> list) where T : IComparable<T>
+                {
+                    for (int i = 0; i < list.Count - 1; i++)
+                    {
+                        if (list[i].CompareTo(list[i + 1]) > 0)
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
                 stopwatch.Start();
                 sortingAlgorithm.Sort<T>(list, cancellationTokenSource);
                 stopwatch.Stop();
+                if (!ISorted(list))
+                {
+                    //throw new Exception("List is not sorted");
+                }
             }, cancellationTokenSource.Token);
 
             
