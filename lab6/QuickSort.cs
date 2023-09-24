@@ -16,6 +16,10 @@ namespace lab6
 
         private void QuickSortRecursive<T>(IList<T> list, int left, int right) where T : IComparable<T>
         {
+            if(cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
             if (left < right)
             {
                 int pivotIndex = Partition(list, left, right);

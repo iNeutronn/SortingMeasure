@@ -9,6 +9,7 @@ namespace lab6
     internal class MeasureManager
     {
         public readonly TimeSpan maxDuration = TimeSpan.FromSeconds(10);
+        private readonly Dictionary<ISortingMethod, int> FailedAlgorithms = new Dictionary<ISortingMethod, int>();
         public static List<int> GenerateRandomList(int n)
         {
             List<int> list = new List<int>();
@@ -21,19 +22,19 @@ namespace lab6
 
             return list;
         }
-        private Dictionary<ISortingMethod, int> FailedAlgoritms = new Dictionary<ISortingMethod, int>();
-        public TimeSpan MeasureSortingTimeAsync<T>(List<T> list, ISortingMethod sortingAlgorithm) where T : IComparable<T>
+        public TimeSpan MeasureSortingTime<T>(List<T> list, ISortingMethod sortingAlgorithm) where T : IComparable<T>
         {
-            if (FailedAlgoritms.ContainsKey(sortingAlgorithm) && FailedAlgoritms[sortingAlgorithm]<=list.Count)
+            if (FailedAlgorithms.ContainsKey(sortingAlgorithm) && FailedAlgorithms[sortingAlgorithm]<=list.Count)
             {
                 throw new TimeoutException();
             }
             var cancellationTokenSource = new CancellationTokenSource();
             var stopwatch = new Stopwatch();
 
+            
             var sortingTask = Task.Run(() =>
             {
-                bool ISorted<T>(IList<T> list) where T : IComparable<T>
+                bool ISorted(IList<T> list)
                 {
                     for (int i = 0; i < list.Count - 1; i++)
                     {
@@ -50,7 +51,7 @@ namespace lab6
                 if (!ISorted(list))
                 {
                     //TODO
-                    //throw new Exception("List is not sorted");
+                    //throw new InvalidOperationException("List is not sorted");
                 }
             }, cancellationTokenSource.Token);
 
@@ -66,7 +67,7 @@ namespace lab6
             {
                 
                 cancellationTokenSource.Cancel();
-                FailedAlgoritms.Add(sortingAlgorithm,list.Count);
+                FailedAlgorithms.Add(sortingAlgorithm,list.Count);
                 // Сортування триває довше, ніж максимально допустимо
                 throw new TimeoutException();
             }

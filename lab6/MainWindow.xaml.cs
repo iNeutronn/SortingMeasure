@@ -6,13 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using LiveCharts;
 using LiveCharts.Wpf;
@@ -30,8 +23,8 @@ namespace lab6
 
         private Dictionary<ISortingMethod, Dictionary<int, TimeSpan?>> MeasureResults = new Dictionary<ISortingMethod, Dictionary<int, TimeSpan?>>();
 
-        private SeriesCollection seriesViews = new SeriesCollection();
-        MeasureManager measureManager = new();
+        private SeriesCollection seriesViews = new ();
+        private MeasureManager measureManager = new();
 
         public MainWindow()
         {
@@ -99,7 +92,7 @@ namespace lab6
                 TimeSpan? performase;
                 try
                 {
-                    performase = measureManager.MeasureSortingTimeAsync(CopyList(list), sortMethod);
+                    performase = measureManager.MeasureSortingTime(CopyList(list), sortMethod);
                 }
                 catch (TimeoutException)
                 {
