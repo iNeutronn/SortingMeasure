@@ -24,14 +24,12 @@ namespace lab6
                     max = item;
             }
 
-            Dictionary<T, int> countDictionary = new Dictionary<T, int>();
+            Dictionary<T, int> countDictionary = new();
 
-            for (int i = 0; i < list.Count; i++)
+            foreach (var item in list)
             {
-                if (countDictionary.ContainsKey(list[i]))
-                    countDictionary[list[i]]++;
-                else
-                    countDictionary[list[i]] = 1;
+                countDictionary.TryGetValue(item, out var count);
+                countDictionary[item] = count + 1;
             }
 
             int j = 0;
@@ -52,7 +50,7 @@ namespace lab6
             }
         }
 
-        private T Increment<T>(T value)
+        private static T Increment<T>(T value)
         {
             dynamic incremented = value;
             incremented++;

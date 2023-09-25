@@ -12,12 +12,12 @@ namespace lab6
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly int[] NumOfEls = { 1024, 4096, 16384, 65536, 262144, 1048576, 4194304 };
+        private readonly int[] CountOfElementsToMeasure = { 1024, 4096, 16384, 65536, 262144, 1048576, 4194304 };
         public Func<double, string> YFormatter { get; set; }
         public Func<double, string> XFormatter { get; set; }
 
-        private MeasureManager measureManager; 
-        private ChartManager chartManager;
+        private readonly MeasureManager measureManager; 
+        private readonly ChartManager chartManager;
 
         public MainWindow()
         {
@@ -28,11 +28,11 @@ namespace lab6
             
             TimeAxis.LabelFormatter = YFormatter;
             CountOfElsLabel.LabelFormatter = XFormatter;
-            CountOfElsLabel.Labels = NumOfEls.OrderBy(x => x).Select(x => x.ToString()).ToArray();
+            CountOfElsLabel.Labels = CountOfElementsToMeasure.OrderBy(x => x).Select(x => x.ToString()).ToArray();
 
             
 
-            List<ISortingMethod> sortingMethods = new List<ISortingMethod>
+            List<ISortingMethod> sortingMethods = new()
             {
                 new SelectionSort(),
                 new ShellSort(),
@@ -41,7 +41,7 @@ namespace lab6
                 //new CountingSort()
             };
 
-            measureManager = new MeasureManager(NumOfEls, sortingMethods, null);
+            measureManager = new MeasureManager(CountOfElementsToMeasure, sortingMethods, null);
 
             chartManager = new ChartManager(MainChart, measureManager.MeasureResults);
             

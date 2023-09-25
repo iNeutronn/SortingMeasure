@@ -7,7 +7,9 @@ namespace lab6
     internal class QuickSort : ISortingMethod
     {
         public string Name => "Quick sort";
+#pragma warning disable CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Возможно, стоит объявить поле как допускающее значения NULL.
         CancellationTokenSource cancellationToken;
+#pragma warning restore CS8618 // Поле, не допускающее значения NULL, должно содержать значение, отличное от NULL, при выходе из конструктора. Возможно, стоит объявить поле как допускающее значения NULL.
         public void Sort<T>(IList<T> list, CancellationTokenSource cts) where T : IComparable<T>
         {
             cancellationToken = cts;
@@ -28,7 +30,7 @@ namespace lab6
             }
         }
 
-        private int Partition<T>(IList<T> list, int left, int right) where T : IComparable<T>
+        private static int Partition<T>(IList<T> list, int left, int right) where T : IComparable<T>
         {
             T pivot = list[right];
             int i = left - 1;
@@ -37,14 +39,10 @@ namespace lab6
                 if (list[j].CompareTo(pivot) <= 0)
                 {
                     i++;
-                    T temp = list[i];
-                    list[i] = list[j];
-                    list[j] = temp;
+                    (list[j], list[i]) = (list[i], list[j]);
                 }
             }
-            T temp2 = list[i + 1];
-            list[i + 1] = list[right];
-            list[right] = temp2;
+            (list[right], list[i + 1]) = (list[i + 1], list[right]);
             return i + 1;
         }
     }

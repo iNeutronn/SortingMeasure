@@ -25,9 +25,7 @@ namespace lab6
                 }
                 if (minIndex != i)
                 {
-                    T temp = list[i];
-                    list[i] = list[minIndex];
-                    list[minIndex] = temp;
+                    (list[minIndex], list[i]) = (list[i], list[minIndex]);
                 }
             }
         }

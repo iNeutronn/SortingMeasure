@@ -13,8 +13,8 @@ namespace lab6
         public Action? UpdateChart;
 
         private readonly IEnumerable<int> NumOfEls;
-        private readonly Dictionary<ISortingMethod, int> FailedAlgorithms = new Dictionary<ISortingMethod, int>();
-        public readonly Dictionary<ISortingMethod, Dictionary<int, TimeSpan?>> MeasureResults = new Dictionary<ISortingMethod, Dictionary<int, TimeSpan?>>();
+        private readonly Dictionary<ISortingMethod, int> FailedAlgorithms = new();
+        public readonly Dictionary<ISortingMethod, Dictionary<int, TimeSpan?>> MeasureResults = new();
         
 
         public MeasureManager(IEnumerable<int> numOfEls,List<ISortingMethod> sortingMethods,Action? updateChart,TimeSpan? maxduration = null)
@@ -28,7 +28,7 @@ namespace lab6
 
         private static List<int> GenerateRandomList(int n)
         {
-            List<int> list = new List<int>();
+            List<int> list = new(n);
             Random random = new();
 
             for (int i = 0; i < n; i++)
@@ -40,7 +40,8 @@ namespace lab6
         }
         private TimeSpan MeasureSortingTime<T>(List<T> list, ISortingMethod sortingAlgorithm) where T : IComparable<T>
         {
-            if (FailedAlgorithms.ContainsKey(sortingAlgorithm) && FailedAlgorithms[sortingAlgorithm]<=list.Count)
+
+            if (FailedAlgorithms.TryGetValue(sortingAlgorithm,out int FailCountOFElements) && FailCountOFElements <= list.Count)
             {
                 throw new TimeoutException();
             }
@@ -50,7 +51,7 @@ namespace lab6
             
             var sortingTask = Task.Run(() =>
             {
-                bool ISorted(IList<T> list)
+                static bool ISorted(IList<T> list)
                 {
                     for (int i = 0; i < list.Count - 1; i++)
                     {
@@ -125,9 +126,9 @@ namespace lab6
                 MeasureResults[sortMethod].Add(itemCount, performase);
             });
         }
-        private List<T> CopyList<T>(List<T> sourse)
+        private static List<T> CopyList<T>(List<T> sourse)
         {
-            List<T> copy = new List<T>();
+            List<T> copy = new();
             foreach (var item in sourse)
             {
                 copy.Add(item);
