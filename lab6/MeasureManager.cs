@@ -3,14 +3,30 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Windows.Threading;
 
 namespace lab6
 {
     internal class MeasureManager
     {
-        public readonly TimeSpan maxDuration = TimeSpan.FromSeconds(10);
+        public readonly TimeSpan MaxDuration = TimeSpan.FromSeconds(10);
+        public Action? UpdateChart;
+
+        private readonly IEnumerable<int> NumOfEls;
         private readonly Dictionary<ISortingMethod, int> FailedAlgorithms = new Dictionary<ISortingMethod, int>();
-        public static List<int> GenerateRandomList(int n)
+        public readonly Dictionary<ISortingMethod, Dictionary<int, TimeSpan?>> MeasureResults = new Dictionary<ISortingMethod, Dictionary<int, TimeSpan?>>();
+        
+
+        public MeasureManager(IEnumerable<int> numOfEls,List<ISortingMethod> sortingMethods,Action? updateChart,TimeSpan? maxduration = null)
+        {
+            this.NumOfEls = numOfEls;
+            foreach (var method in sortingMethods)
+                MeasureResults.Add(method, new Dictionary<int, TimeSpan?>());
+            MaxDuration = maxduration ?? TimeSpan.FromSeconds(10);
+            UpdateChart = updateChart;
+        }
+
+        private static List<int> GenerateRandomList(int n)
         {
             List<int> list = new List<int>();
             Random random = new();
@@ -22,7 +38,7 @@ namespace lab6
 
             return list;
         }
-        public TimeSpan MeasureSortingTime<T>(List<T> list, ISortingMethod sortingAlgorithm) where T : IComparable<T>
+        private TimeSpan MeasureSortingTime<T>(List<T> list, ISortingMethod sortingAlgorithm) where T : IComparable<T>
         {
             if (FailedAlgorithms.ContainsKey(sortingAlgorithm) && FailedAlgorithms[sortingAlgorithm]<=list.Count)
             {
@@ -57,7 +73,7 @@ namespace lab6
 
             
 
-            if (Task.WaitAny(new[] { sortingTask }, maxDuration) != -1)
+            if (Task.WaitAny(new[] { sortingTask }, MaxDuration) != -1)
             {
                 // Сортування завершилося вчасно
                 cancellationTokenSource.Cancel();
@@ -71,6 +87,52 @@ namespace lab6
                 // Сортування триває довше, ніж максимально допустимо
                 throw new TimeoutException();
             }
+        }
+        public void Measure()
+        {
+            Task.Run(() => MeasureMethods());
+   
+        }
+        private void MeasureMethods()
+        {
+            foreach(var method in MeasureResults.Keys)
+            {
+                MeasureResults[method].Clear();
+            }
+            foreach (var item in NumOfEls)
+            {
+                MeasureMethodsFor(item);
+
+                UpdateChart!();
+            }
+        }
+
+        private void MeasureMethodsFor(int itemCount)
+        {
+            var list = GenerateRandomList(itemCount);
+
+            Parallel.ForEach(MeasureResults.Keys, (sortMethod) =>
+            {
+                TimeSpan? performase;
+                try
+                {
+                    performase = MeasureSortingTime(CopyList(list), sortMethod);
+                }
+                catch (TimeoutException)
+                {
+                    performase = null;
+                }
+                MeasureResults[sortMethod].Add(itemCount, performase);
+            });
+        }
+        private List<T> CopyList<T>(List<T> sourse)
+        {
+            List<T> copy = new List<T>();
+            foreach (var item in sourse)
+            {
+                copy.Add(item);
+            }
+            return copy;
         }
     }
     

@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using LiveCharts;
-using LiveCharts.Wpf;
 
 namespace lab6
 {
@@ -21,10 +16,8 @@ namespace lab6
         public Func<double, string> YFormatter { get; set; }
         public Func<double, string> XFormatter { get; set; }
 
-        private Dictionary<ISortingMethod, Dictionary<int, TimeSpan?>> MeasureResults = new Dictionary<ISortingMethod, Dictionary<int, TimeSpan?>>();
-
-        private SeriesCollection seriesViews = new ();
-        private MeasureManager measureManager = new();
+        private MeasureManager measureManager; 
+        private ChartManager chartManager;
 
         public MainWindow()
         {
@@ -32,15 +25,28 @@ namespace lab6
             LogTextBox.Text = string.Empty;
             YFormatter = value => value.ToString("N");
             XFormatter = value => value.ToString("N");
-            MainChart.Series = seriesViews;
+            
             TimeAxis.LabelFormatter = YFormatter;
             CountOfElsLabel.LabelFormatter = XFormatter;
             CountOfElsLabel.Labels = NumOfEls.OrderBy(x => x).Select(x => x.ToString()).ToArray();
-            MeasureResults.Add(new SelectionSort(), new Dictionary<int, TimeSpan?>());
-            MeasureResults.Add(new ShellSort(), new Dictionary<int, TimeSpan?>());
-            MeasureResults.Add(new QuickSort(), new Dictionary<int, TimeSpan?>());
-            MeasureResults.Add(new MergeSort(), new Dictionary<int, TimeSpan?>());
-            //MeasureResults.Add(new CountingSort(), new Dictionary<int, TimeSpan?>());
+
+            
+
+            List<ISortingMethod> sortingMethods = new List<ISortingMethod>
+            {
+                new SelectionSort(),
+                new ShellSort(),
+                new QuickSort(),
+                new MergeSort(),
+                //new CountingSort()
+            };
+
+            measureManager = new MeasureManager(NumOfEls, sortingMethods, null);
+
+            chartManager = new ChartManager(MainChart, measureManager.MeasureResults);
+            
+            measureManager.UpdateChart = () => Dispatcher.Invoke(()=>chartManager.UpdateChart());
+            
         }
 
         private void AllMethodsButton_Click(object sender, RoutedEventArgs e)
@@ -69,79 +75,7 @@ namespace lab6
 
         private void MeasugeButton_Click(object sender, RoutedEventArgs e)
         {
-            Task sorttask = new Task(MeasureMethods);
-            sorttask.Start();
-        }
-
-        private void MeasureMethods()
-        {
-            foreach (var item in NumOfEls)
-            {
-                MeasureMethodsFor(item);
-               
-                Dispatcher.Invoke(()=> UpdateChart());
-            }
-        }
-
-        private void MeasureMethodsFor(int itemCount)
-        {
-            var list = MeasureManager.GenerateRandomList(itemCount);
-            
-           Parallel.ForEach(MeasureResults.Keys, (sortMethod) =>
-            {
-                TimeSpan? performase;
-                try
-                {
-                    performase = measureManager.MeasureSortingTime(CopyList(list), sortMethod);
-                }
-                catch (TimeoutException)
-                {
-                    performase = null;
-                }
-                MeasureResults[sortMethod].Add(itemCount, performase);
-            });
-        }
-        private List<T> CopyList<T>(List<T> sourse)
-        {
-            List<T> copy = new List<T>();
-            foreach (var item in sourse)
-            {
-                copy.Add(item);
-            }
-            return copy;
-        }
-        private void UpdateChart()
-        {
-            seriesViews.Clear();
-            foreach (var sortingMethod in MeasureResults.Keys)
-            {
-                var ticks = ConvertDictionaryToLong(MeasureResults[sortingMethod]);
-
-                seriesViews.Add(new LineSeries
-                {
-                    Title = sortingMethod.Name,
-                    Values = new ChartValues<double>(ticks)
-
-                });
-            }
-
-        }
-        public static List<double> ConvertDictionaryToLong(Dictionary<int, TimeSpan?> nullableDictionary)
-        {
-            List<double> ticksList = new List<double>();
-
-            foreach (var kvp in nullableDictionary)
-            {
-                if (kvp.Value == null)
-                {
-                    break; // Зупинити обробку, якщо зустріли null
-                }
-
-                double ticks = kvp.Value.Value.TotalMilliseconds;
-                ticksList.Add(ticks);
-            }
-
-            return ticksList;
+           measureManager.Measure();
         }
 
     }
