@@ -53,13 +53,14 @@
                 <Button Style="{StaticResource ButtonStyle}" x:Name="AllMethodsButton" Grid.Row="1" Grid.Column="0" Content="All" Click="AllMethodsButton_Click" />
                 <Button Style="{StaticResource ButtonStyle}" x:Name="NoOneBuuton" Grid.Row="7" Grid.Column="0" Content="No one" Click="NoOneBuuton_Click"/>
                 
-                <CheckBox Style="{StaticResource CheckBoxStyle}" x:Name="SelctionSortCheckBox" Grid.Column="0" Grid.Row="2" Content="Selection Sort"/>
-                <CheckBox Style="{StaticResource CheckBoxStyle}" x:Name="ShellSortCheckBox" Grid.Column="0" Grid.Row="3" Content="Shell Sort"/>
-                <CheckBox Style="{StaticResource CheckBoxStyle}" x:Name="QuickSortCheckBox" Grid.Column="0" Grid.Row="4" Content="Quick Sort"/>
-                <CheckBox Style="{StaticResource CheckBoxStyle}" x:Name="MeargeSortCheckBox" Grid.Column="0" Grid.Row="5" Content="Merge Sort"/>
-                <CheckBox Style="{StaticResource CheckBoxStyle}" x:Name="CountingSortCheckBox" Grid.Column="0" Grid.Row="6" Content="Count Sort"/>
-
-                <TextBox x:Name="LogTextBox" Grid.Row="8" Grid.Column="0" Text="fds" VerticalContentAlignment="Bottom" />
+                <CheckBox Style="{StaticResource CheckBoxStyle}" x:Name="SelctionSortCheckBox" Grid.Column="0" Grid.Row="2" Content="Selection Sort" Checked="SelectionSortCheked" Unchecked="SelectionSortUnCheked"/>
+                <CheckBox Style="{StaticResource CheckBoxStyle}" x:Name="ShellSortCheckBox" Grid.Column="0" Grid.Row="3" Content="Shell Sort" Checked="ShellSortCheked" Unchecked="ShellSortUnCheked"/>
+                <CheckBox Style="{StaticResource CheckBoxStyle}" x:Name="QuickSortCheckBox" Grid.Column="0" Grid.Row="4" Content="Quick Sort" Checked="QuickSortCheked" Unchecked="QuickSortUnCheked"/>
+                <CheckBox Style="{StaticResource CheckBoxStyle}" x:Name="MeargeSortCheckBox" Grid.Column="0" Grid.Row="5" Content="Merge Sort" Checked="MergeSortCheked" Unchecked="MergeSortUnCheked"/>
+                <CheckBox Style="{StaticResource CheckBoxStyle}" x:Name="CountingSortCheckBox" Grid.Column="0" Grid.Row="6" Content="Count Sort" Checked="CountingSortCheked" Unchecked="CountingSortUnCheked"/>
+                <ScrollViewer x:Name="ScrollViewer" VerticalScrollBarVisibility="Auto" Grid.Row="8" Grid.Column="0" >
+                    <TextBox x:Name="LogTextBox" Grid.Row="8" Grid.Column="0" Text="fds" VerticalContentAlignment="Bottom" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
+                </ScrollViewer>
             </Grid>
         </Border>
         <lvc:CartesianChart x:Name="MainChart" Series="{Binding seriesViews}" Grid.Row="0" Grid.Column="1" LegendLocation="Right" >

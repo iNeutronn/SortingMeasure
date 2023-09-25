@@ -9,25 +9,29 @@ namespace lab6
 {
     internal class MeasureManager
     {
-        public readonly TimeSpan MaxDuration = TimeSpan.FromSeconds(10);
+        public readonly TimeSpan MaxDuration;
         public Action? UpdateChart;
 
         private readonly IEnumerable<int> NumOfEls;
         private readonly Dictionary<ISortingMethod, int> FailedAlgorithms = new();
         public readonly Dictionary<ISortingMethod, Dictionary<int, TimeSpan?>> MeasureResults = new();
-        
+        private Action<string> Log;
 
         public MeasureManager(IEnumerable<int> numOfEls,List<ISortingMethod> sortingMethods,Action? updateChart,TimeSpan? maxduration = null)
         {
             this.NumOfEls = numOfEls;
             foreach (var method in sortingMethods)
                 MeasureResults.Add(method, new Dictionary<int, TimeSpan?>());
-            MaxDuration = maxduration ?? TimeSpan.FromSeconds(10);
+            MaxDuration = maxduration ?? TimeSpan.FromSeconds(1);
             UpdateChart = updateChart;
         }
-
-        private static List<int> GenerateRandomList(int n)
+        public void SetLog(Action<string> log)
         {
+            Log = log;
+        }
+        private List<int> GenerateRandomList(int n)
+        {
+            Log($"Generating {n} random elements");
             List<int> list = new(n);
             Random random = new();
 
@@ -91,8 +95,8 @@ namespace lab6
         }
         public void Measure()
         {
-            Task.Run(() => MeasureMethods());
-   
+            Task.Run(MeasureMethods);
+            Log("Measurment Started");
         }
         private void MeasureMethods()
         {
@@ -102,12 +106,13 @@ namespace lab6
             }
             foreach (var item in NumOfEls)
             {
+                Log($"Measuring for {item} elements");
                 MeasureMethodsFor(item);
 
                 UpdateChart!();
             }
+            Log("Measurment Finished");
         }
-
         private void MeasureMethodsFor(int itemCount)
         {
             var list = GenerateRandomList(itemCount);
@@ -117,10 +122,12 @@ namespace lab6
                 TimeSpan? performase;
                 try
                 {
+                    Log($"Measuring for {sortMethod.Name} for {sortMethod.Name} items");
                     performase = MeasureSortingTime(CopyList(list), sortMethod);
                 }
                 catch (TimeoutException)
                 {
+                    Log($"FAIDEL measuring for {sortMethod.Name} for {sortMethod.Name} items");
                     performase = null;
                 }
                 MeasureResults[sortMethod].Add(itemCount, performase);

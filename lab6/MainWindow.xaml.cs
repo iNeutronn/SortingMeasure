@@ -18,6 +18,14 @@ namespace lab6
 
         private readonly MeasureManager measureManager; 
         private readonly ChartManager chartManager;
+        private List<ISortingMethod> sortingMethods = new()
+            {
+                new SelectionSort(),
+                new ShellSort(),
+                new QuickSort(),
+                new MergeSort(),
+                //new CountingSort()
+            };
 
         public MainWindow()
         {
@@ -30,25 +38,19 @@ namespace lab6
             CountOfElsLabel.LabelFormatter = XFormatter;
             CountOfElsLabel.Labels = CountOfElementsToMeasure.OrderBy(x => x).Select(x => x.ToString()).ToArray();
 
-            
-
-            List<ISortingMethod> sortingMethods = new()
-            {
-                new SelectionSort(),
-                new ShellSort(),
-                new QuickSort(),
-                new MergeSort(),
-                //new CountingSort()
-            };
-
             measureManager = new MeasureManager(CountOfElementsToMeasure, sortingMethods, null);
-
+        
+            measureManager.SetLog((text) => Dispatcher.Invoke(() => Log(text)));
             chartManager = new ChartManager(MainChart, measureManager.MeasureResults);
-            
+            chartManager.SetLog((text) => Dispatcher.Invoke(() => Log(text)));
             measureManager.UpdateChart = () => Dispatcher.Invoke(()=>chartManager.UpdateChart());
             
         }
-
+        private void Log(string message)
+        {
+            LogTextBox.Text += message + "\n";
+            ScrollViewer.ScrollToVerticalOffset(double.MaxValue);
+        }
         private void AllMethodsButton_Click(object sender, RoutedEventArgs e)
         {
             foreach (var item in SidePanelGrid.Children)
@@ -78,5 +80,45 @@ namespace lab6
            measureManager.Measure();
         }
 
+        private void SelectionSortCheked(object sender, RoutedEventArgs e)
+        {
+            chartManager.ShowLine(sortingMethods.Single(x =>x.Name== "Selection sort"));
+        }
+        private void SelectionSortUnCheked(object sender, RoutedEventArgs e)
+        {
+            chartManager.HideLine(sortingMethods.Single(x => x.Name == "Selection sort"));
+        }
+        private void ShellSortCheked(object sender, RoutedEventArgs e)
+        {
+            chartManager.ShowLine(sortingMethods.Single(x => x.Name == "Shell sort"));
+        }
+        private void ShellSortUnCheked(object sender, RoutedEventArgs e)
+        {
+            chartManager.HideLine(sortingMethods.Single(x => x.Name == "Shell sort"));
+        }
+        private void QuickSortCheked(object sender, RoutedEventArgs e)
+        {
+            chartManager.ShowLine(sortingMethods.Single(x => x.Name == "Quick sort"));
+        }
+        private void QuickSortUnCheked(object sender, RoutedEventArgs e)
+        {
+            chartManager.HideLine(sortingMethods.Single(x => x.Name == "Quick sort"));
+        }
+        private void MergeSortCheked(object sender, RoutedEventArgs e)
+        {
+            chartManager.ShowLine(sortingMethods.Single(x => x.Name == "Merge sort"));
+        }
+        private void MergeSortUnCheked(object sender, RoutedEventArgs e)
+        {
+            chartManager.HideLine(sortingMethods.Single(x => x.Name == "Merge sort"));
+        }
+        private void CountingSortCheked(object sender, RoutedEventArgs e)
+        {
+            //chartManager.ShowLine(sortingMethods.Single(x => x.Name == "Counting sort"));
+        }
+        private void CountingSortUnCheked(object sender, RoutedEventArgs e)
+        {
+            //chartManager.HideLine(sortingMethods.Single(x => x.Name == "Counting sort"));
+        }
     }
 }
