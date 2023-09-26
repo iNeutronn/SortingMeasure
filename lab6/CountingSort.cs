@@ -1,61 +1,72 @@
-﻿using System;
+﻿using lab6;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace lab6
 {
-    internal class CountingSort : ISortingMethod
+    public class CountingSort : ISortingMethod
     {
-        public string Name => "Counting sort";
+        public string Name => "Counting Sort";
 
         public void Sort<T>(IList<T> list, CancellationTokenSource cts) where T : IComparable<T>
         {
-            if (list.Count == 0)
+            if (list == null)
+                throw new ArgumentNullException(nameof(list));
+
+            if (list.Count <= 1)
                 return;
 
-            T min = list[0];
-            T max = list[0];
+            if (list.Any(item => item == null))
+                throw new ArgumentException("Counting Sort does not support null elements.");
 
-            foreach (T item in list)
+            if (typeof(T) != typeof(int))
+                throw new ArgumentException("Counting Sort only supports sorting integers.");
+
+            // Приведемо елементи до int для сортування
+            var intList = list.Cast<int>().ToList();
+
+            int maxValue = intList.Max();
+            int minValue = intList.Min();
+            int range = maxValue - minValue + 1;
+
+            int[] count = new int[range];
+            List<int> sortedList = new List<int>(intList.Count);
+
+            foreach (int num in intList)
             {
-                if (item.CompareTo(min) < 0)
-                    min = item;
-                if (item.CompareTo(max) > 0)
-                    max = item;
+                count[num - minValue]++;
             }
 
-            Dictionary<T, int> countDictionary = new();
-
-            foreach (var item in list)
-            {
-                countDictionary.TryGetValue(item, out var count);
-                countDictionary[item] = count + 1;
-            }
-
-            int j = 0;
-            for (T key = min; key.CompareTo(max) <= 0; key = Increment(key))
+            for (int i = 0; i < range; i++)
             {
                 if (cts.IsCancellationRequested)
                 {
                     return;
                 }
-                if (countDictionary.TryGetValue(key, out int count))
+
+                for (int j = 0; j < count[i]; j++)
                 {
-                    for (int i = 0; i < count; i++)
-                    {
-                        list[j] = key;
-                        j++;
-                    }
+                    sortedList.Add(i + minValue);
                 }
             }
-        }
 
-        private static T Increment<T>(T value)
-        {
-            dynamic incremented = value;
-            incremented++;
-            return incremented;
+            for (int i = 0; i < sortedList.Count; i++)
+            {
+                if (cts.IsCancellationRequested)
+                {
+                    throw new OperationCanceledException("Sorting operation was canceled.");
+                }
+
+                intList[i] = sortedList[i];
+            }
+
+            // Копіюємо відсортований список назад в початковий список
+            for (int i = 0; i < intList.Count; i++)
+            {
+                list[i] = (T)(object)intList[i];
+            }
         }
     }
-
 }

@@ -24,7 +24,7 @@ namespace lab6
                 new ShellSort(),
                 new QuickSort(),
                 new MergeSort(),
-                //new CountingSort()
+                new CountingSort()
             };
 
         public MainWindow()

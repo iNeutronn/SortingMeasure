@@ -22,7 +22,7 @@ namespace lab6
             this.NumOfEls = numOfEls;
             foreach (var method in sortingMethods)
                 MeasureResults.Add(method, new Dictionary<int, TimeSpan?>());
-            MaxDuration = maxduration ?? TimeSpan.FromSeconds(1);
+            MaxDuration = maxduration ?? TimeSpan.FromSeconds(10);
             UpdateChart = updateChart;
         }
         public void SetLog(Action<string> log)
@@ -37,7 +37,7 @@ namespace lab6
 
             for (int i = 0; i < n; i++)
             {
-                list.Add(random.Next());
+                list.Add(random.Next(0,100000));
             }
 
             return list;
