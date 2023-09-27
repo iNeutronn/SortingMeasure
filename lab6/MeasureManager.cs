@@ -37,7 +37,7 @@ namespace lab6
 
             for (int i = 0; i < n; i++)
             {
-                list.Add(random.Next(0,100000));
+                list.Add(random.Next(0,1000000));
             }
 
             return list;
@@ -112,6 +112,7 @@ namespace lab6
                 UpdateChart!();
             }
             Log("Measurment Finished");
+            GC.Collect();
         }
         private void MeasureMethodsFor(int itemCount)
         {
